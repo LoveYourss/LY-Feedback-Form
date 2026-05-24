@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Yourss — Tell Us Everything</title>
+<style>
+  @font-face { font-family: 'Geist'; src: url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Geist'; src: url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/Geist-Medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Geist'; src: url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/Geist-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+</style>
+<style>
+:root {
+  --gold: #C4A46B;
+  --gold-dim: #8C6E3F;
+  --gold-glow: rgba(196,164,107,0.12);
+  --black: #0A0A09;
+  --surface: #111110;
+  --surface-2: #1A1A18;
+  --surface-3: #222220;
+  --border: rgba(196,164,107,0.18);
+  --border-hover: rgba(196,164,107,0.45);
+  --text: #F0EDE6;
+  --text-2: #9A9589;
+  --text-3: #5C5850;
+  --serif: 'Geist', system-ui, sans-serif;
+  --sans: 'Geist', system-ui, sans-serif;
+  --ease: cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--black); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+::selection { background: var(--gold-glow); color: var(--gold); }
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+/* ── LAYOUT ── */
+.page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── PROGRESS ── */
+.progress-wrap { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 2px; background: var(--surface-3); }
+.progress-fill { height: 100%; background: var(--gold); transition: width 0.5s var(--ease); }
+.progress-label { position: fixed; top: 12px; right: 20px; z-index: 100; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+
+/* ── WORDMARK ── */
+.wordmark { padding: 2.5rem 2.5rem 0; }
+.wordmark span { font-family: var(--serif); font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
+
+/* ── SCREEN ── */
+.screen { display: none; flex-direction: column; flex: 1; padding: 3rem 2.5rem 5rem; max-width: 680px; margin: 0 auto; width: 100%; animation: fadeUp 0.4s var(--ease) forwards; }
+.screen.active { display: flex; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── SECTION LABEL ── */
+.section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.625rem; }
+
+/* ── QUESTION ── */
+.q-title { font-family: var(--serif); font-size: clamp(24px, 4vw, 34px); line-height: 1.25; font-weight: 300; letter-spacing: -0.01em; color: var(--text); margin-bottom: 0.5rem; }
+.q-title em { font-style: italic; color: var(--gold); }
+.q-sub { font-size: 14px; color: var(--text-2); line-height: 1.65; margin-bottom: 2rem; }
+
+/* ── INPUTS ── */
+input[type="text"], input[type="email"], textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 0.875rem 0;
+  font-size: 16px;
+  font-family: var(--sans);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 1.5rem;
+}
+input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::placeholder { color: var(--text-3); }
+input[type="text"]:focus, input[type="email"]:focus, textarea:focus { border-bottom-color: var(--gold); }
+textarea { resize: none; min-height: 100px; line-height: 1.7; }
+
+/* ── CHOICE CARDS ── */
+.choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
+.choice-card {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.125rem 1.25rem;
+  cursor: pointer;
+  background: var(--surface);
+  display: flex; align-items: flex-start; gap: 1rem;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left; width: 100%;
+}
+.choice-card:hover { border-color: var(--border-hover); background: var(--surface-2); }
+.choice-card.selected { border-color: var(--gold); background: var(--surface-2); }
+.choice-icon { font-size: 18px; color: var(--gold); flex-shrink: 0; margin-top: 2px; line-height: 1; }
+.choice-name { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 3px; display: block; }
+.choice-desc { font-size: 13px; color: var(--text-2); line-height: 1.4; display: block; }
+
+/* ── MULTI SELECT ── */
+.multi-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+.multi-chip {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background: var(--surface);
+  font-size: 13px; color: var(--text-2);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.multi-chip:hover { border-color: var(--border-hover); color: var(--text); }
+.multi-chip.selected { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+
+/* ── SLIDER ── */
+.slider-wrap { margin-bottom: 2rem; }
+.slider-row { display: flex; align-items: center; gap: 16px; }
+.slider-val { font-family: var(--serif); font-size: 28px; font-weight: 500; color: var(--gold); min-width: 32px; text-align: right; }
+input[type="range"] {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 1px; background: var(--surface-3); outline: none; cursor: pointer;
+  accent-color: var(--gold);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--gold); cursor: pointer;
+  border: 2px solid var(--black);
+  transition: transform 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.slider-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+.slider-labels span { font-size: 11px; color: var(--text-3); }
+
+/* ── STARS ── */
+.star-row { display: flex; gap: 8px; margin-bottom: 2rem; }
+.star-btn {
+  font-size: 36px; color: var(--surface-3);
+  background: none; border: none; cursor: pointer; padding: 0; line-height: 1;
+  transition: color 0.1s, transform 0.1s;
+}
+.star-btn.lit { color: var(--gold); }
+.star-btn:hover { transform: scale(1.15); }
+
+/* ── NPS ── */
+.nps-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.625rem; }
+.nps-btn {
+  width: 44px; height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface);
+  font-size: 14px; font-weight: 500; color: var(--text-2);
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.nps-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.nps-btn.selected { border-color: var(--gold); background: var(--gold); color: var(--black); }
+.nps-labels { display: flex; justify-content: space-between; }
+.nps-labels span { font-size: 11px; color: var(--text-3); }
+
+/* ── CONSENT ── */
+.consent-block { margin-bottom: 1.5rem; }
+.consent-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 1rem; cursor: pointer; }
+.consent-item input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--gold); flex-shrink: 0; cursor: pointer; }
+.consent-item span { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+/* ── NAV ── */
+.nav-row { display: flex; align-items: center; justify-content: space-between; margin-top: 2.5rem; }
+.btn-back { font-size: 13px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: var(--sans); letter-spacing: 0.04em; transition: color 0.15s; padding: 0; }
+.btn-back:hover { color: var(--text-2); }
+.btn-back.invisible { visibility: hidden; }
+.btn-next {
+  font-size: 13px; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--gold); background: transparent;
+  border: 1px solid var(--gold); border-radius: 2px;
+  padding: 0.75rem 2rem; cursor: pointer;
+  font-family: var(--sans);
+  transition: background 0.15s, color 0.15s;
+}
+.btn-next:hover { background: var(--gold); color: var(--black); }
+.btn-submit {
+  font-size: 13px; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--black); background: var(--gold);
+  border: none; border-radius: 2px;
+  padding: 0.875rem 2.5rem; cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity 0.15s;
+}
+.btn-submit:hover { opacity: 0.85; }
+
+/* ── RULE ── */
+.rule { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+/* ── COVER ── */
+.cover-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; }
+.cover-title { font-family: var(--serif); font-size: clamp(36px, 7vw, 62px); font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; color: var(--text); margin-bottom: 1.25rem; }
+.cover-title em { font-style: italic; color: var(--gold); }
+.cover-body { font-size: 16px; color: var(--text-2); line-height: 1.75; max-width: 480px; margin-bottom: 2.5rem; }
+.cover-meta { font-size: 12px; color: var(--text-3); letter-spacing: 0.06em; margin-top: 1.5rem; }
+
+/* ── THANK YOU ── */
+.thanks-glyph { font-family: var(--serif); font-size: 80px; color: var(--gold); margin-bottom: 1.5rem; line-height: 1; }
+.thanks-title { font-family: var(--serif); font-size: clamp(28px, 5vw, 44px); font-weight: 300; letter-spacing: -0.02em; color: var(--text); margin-bottom: 1rem; line-height: 1.2; }
+.thanks-body { font-size: 16px; color: var(--text-2); line-height: 1.75; max-width: 420px; }
+
+/* ── DECORATIVE LINE ── */
+.gold-line { width: 40px; height: 1px; background: var(--gold); margin: 2rem 0; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 560px) {
+  .screen { padding: 2.5rem 1.5rem 4rem; }
+  .wordmark { padding: 2rem 1.5rem 0; }
+  .nps-btn { width: 38px; height: 38px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-wrap"><div class="progress-fill" id="prog"></div></div>
+<div class="progress-label" id="prog-label"></div>
+
+<div class="page">
+  <div class="wordmark"><span>Love Yourss</span></div>
+
+  <!-- ══ COVER ══ -->
+  <div class="screen active" id="s-cover">
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; padding-top:2rem;">
+      <p class="cover-eyebrow">Client feedback</p>
+      <h1 class="cover-title">You made something<br><em>real</em> with us.</h1>
+      <p class="cover-body">We'd love to hear about it — honestly and specifically. This isn't a tick-box exercise. Your words shape how we build, how we pitch, and how we show up for the next brand we partner with.<br><br>Takes about 5 minutes. Be as direct as you like.</p>
+      <div class="gold-line"></div>
+      <div>
+        <button class="btn-submit" onclick="goTo('s-who')">Let's do this →</button>
+      </div>
+      <p class="cover-meta">5 minutes · honest answers only · all feedback read personally</p>
+    </div>
+  </div>
+
+  <!-- ══ WHO YOU ARE ══ -->
+  <div class="screen" id="s-who">
+    <p class="section-label">First things first</p>
+    <h2 class="q-title">Who are we hearing from?</h2>
+    <p class="q-sub">Just your name and where you're coming from. We want to know who we're talking to.</p>
+    <input type="text" id="f-name" placeholder="Your name" />
+    <input type="text" id="f-company" placeholder="Your company or project" />
+    <input type="email" id="f-email" placeholder="Email (optional — only if you'd like us to follow up)" />
+    <div class="nav-row">
+      <button class="btn-back invisible">← Back</button>
+      <button class="btn-next" onclick="goTo('s-service')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ SERVICE SELECTOR ══ -->
+  <div class="screen" id="s-service">
+    <p class="section-label">What we built together</p>
+    <h2 class="q-title">Which part of <em>Love Yourss</em> did we work on together?</h2>
+    <p class="q-sub">Pick the main one — you can mention the rest as we go.</p>
+    <div class="choices">
+      <button class="choice-card" onclick="selectService('strategy', this)">
+        <span class="choice-icon">◎</span>
+        <span><span class="choice-name">Strategy & brand development</span><span class="choice-desc">Brand build, positioning, messaging framework, creative direction, brand deck</span></span>
+      </button>
+      <button class="choice-card" onclick="selectService('campaigns', this)">
+        <span class="choice-icon">▶</span>
+        <span><span class="choice-name">Campaigns</span><span class="choice-desc">Brand films, lifestyle campaigns, performance creative, VSLs, editorial</span></span>
+      </button>
+      <button class="choice-card" onclick="selectService('retainer', this)">
+        <span class="choice-icon">↺</span>
+        <span><span class="choice-name">Content retainer</span><span class="choice-desc">Monthly content system — scripts, filming, editing, strategy</span></span>
+      </button>
+      <button class="choice-card" onclick="selectService('events', this)">
+        <span class="choice-icon">◈</span>
+        <span><span class="choice-name">Events & activations</span><span class="choice-desc">Festival, music, corporate — photography, videography, real-time delivery</span></span>
+      </button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-who')">← Back</button>
+      <button class="btn-next" id="btn-service-next" onclick="goToServiceBranch()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- STRATEGY BRANCH -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-strat-before">
+    <p class="section-label">Section B — Before Love Yourss</p>
+    <h2 class="q-title">Where was the brand <em>before</em> we got in the room?</h2>
+    <p class="q-sub">Be honest — the gap between where you were and where you ended up is the whole story. What was unclear, missing, or just not working?</p>
+    <textarea id="strat-before" placeholder="e.g. We had a logo and a vibe but no real direction. Every piece of content felt disconnected from the last..."></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How would you rate your brand clarity before we started?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">No direction</span>
+        <input type="range" min="1" max="10" value="5" id="strat-clarity-before" oninput="document.getElementById('strat-clarity-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Crystal clear</span>
+        <span class="slider-val" id="strat-clarity-val">5</span>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">What was missing before Day 1? (pick all that apply)</p>
+    <div class="multi-choices">
+      <button class="multi-chip" onclick="toggleChip(this)">Clear positioning</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Messaging direction</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Visual identity</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Content strategy</button>
+      <button class="multi-chip" onclick="toggleChip(this)">A brand voice</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Creative concepts</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Honestly, all of it</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-service')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-strat-gap')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-strat-gap">
+    <p class="section-label">Section C — The moment it clicked</p>
+    <h2 class="q-title">What made you realise you needed this?</h2>
+    <p class="q-sub">Was there a moment, a missed opportunity, or just a growing feeling that something wasn't right? Tell us what pushed you to act.</p>
+    <textarea id="strat-gap" placeholder="e.g. We kept losing pitches to brands that looked and sounded more put together than us. Our product was better — the brand wasn't carrying that..."></textarea>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">And why Love Yourss specifically?</p>
+    <input type="text" id="strat-why" placeholder="What made you reach out to us over anyone else?" />
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-strat-before')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-strat-work')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-strat-work">
+    <p class="section-label">Section D — The work itself</p>
+    <h2 class="q-title">What was the <em>strategy process</em> actually like?</h2>
+    <p class="q-sub">Discovery, the brand deck, the creative direction sessions — how did it feel to go through it? What surprised you?</p>
+    <textarea id="strat-work" placeholder="e.g. I didn't expect it to feel so collaborative. We came in thinking we'd just receive a document. Instead it felt like someone finally understood what we'd been trying to say for two years..."></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How well did we understand your brand?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Missed the point</span>
+        <input type="range" min="1" max="10" value="8" id="strat-understand" oninput="document.getElementById('strat-understand-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Got it completely</span>
+        <span class="slider-val" id="strat-understand-val">8</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-strat-gap')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-strat-outcome')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-strat-outcome">
+    <p class="section-label">Section E — After</p>
+    <h2 class="q-title">What does the brand have now that it <em>didn't have before?</em></h2>
+    <p class="q-sub">Positioning, clarity, a visual language, a voice — describe what's actually different. Don't be shy about this part.</p>
+    <textarea id="strat-outcome" placeholder="e.g. For the first time we have a brand document we actually use. Our team knows how to write, what to shoot, what to say no to..."></textarea>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">Where do you feel the shift most?</p>
+    <div class="multi-choices">
+      <button class="multi-chip" onclick="toggleChip(this)">In pitches</button>
+      <button class="multi-chip" onclick="toggleChip(this)">On social media</button>
+      <button class="multi-chip" onclick="toggleChip(this)">In how the team communicates</button>
+      <button class="multi-chip" onclick="toggleChip(this)">In client conversations</button>
+      <button class="multi-chip" onclick="toggleChip(this)">In how I talk about the brand</button>
+      <button class="multi-chip" onclick="toggleChip(this)">In how the brand looks</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;margin-top:0.5rem;">How has the strategy changed how you show up?</p>
+    <textarea id="strat-transform" placeholder="Pitches, social, day-to-day — where do you feel it in action?"></textarea>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-strat-work')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-rating')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- CAMPAIGNS BRANCH -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-camp-before">
+    <p class="section-label">Section B — Before the campaign</p>
+    <h2 class="q-title">What did the brand <em>look like</em> before we shot together?</h2>
+    <p class="q-sub">How were you showing up visually — on social, in ads, in decks? Be honest about where things were before we started.</p>
+    <textarea id="camp-before" placeholder="e.g. Our content was inconsistent — sometimes good, mostly just iPhone photos between meetings. Nothing felt intentional..."></textarea>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">Which campaign type did we work on?</p>
+    <div class="multi-choices" style="margin-bottom:1.5rem;">
+      <button class="multi-chip" onclick="singleChip(this,'camp-type')">Lifestyle campaign</button>
+      <button class="multi-chip" onclick="singleChip(this,'camp-type')">Performance creative / ads</button>
+      <button class="multi-chip" onclick="singleChip(this,'camp-type')">Brand film</button>
+      <button class="multi-chip" onclick="singleChip(this,'camp-type')">Product hero film</button>
+      <button class="multi-chip" onclick="singleChip(this,'camp-type')">VSL</button>
+      <button class="multi-chip" onclick="singleChip(this,'camp-type')">Editorial</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">What were you trying to solve?</p>
+    <div class="multi-choices">
+      <button class="multi-chip" onclick="toggleChip(this)">Brand awareness</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Content for paid media</button>
+      <button class="multi-chip" onclick="toggleChip(this)">A launch moment</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Visual rebrand</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Conversions</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Credibility</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-service')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-camp-shoot')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-camp-shoot">
+    <p class="section-label">Section C — On set</p>
+    <h2 class="q-title">What was the <em>shoot day</em> actually like?</h2>
+    <p class="q-sub">The energy, the direction, how it felt to be in the room with us — what stood out? What surprised you?</p>
+    <textarea id="camp-shoot" placeholder="e.g. I've been on a lot of shoots. The energy was genuinely different — calm, focused, but also really alive. The cast felt it too..."></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How would you rate the on-set energy and professionalism?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Flat</span>
+        <input type="range" min="1" max="10" value="8" id="camp-energy" oninput="document.getElementById('camp-energy-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">10/10</span>
+        <span class="slider-val" id="camp-energy-val">8</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-camp-before')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-camp-outcome')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-camp-outcome">
+    <p class="section-label">Section D — The creative & the outcome</p>
+    <h2 class="q-title">Did the work <em>land?</em></h2>
+    <p class="q-sub">How did the final deliverables compare to what you expected? And what did the campaign actually do for the brand — visibility, enquiries, conversions, perception?</p>
+    <textarea id="camp-creative" placeholder="e.g. The deliverables exceeded what we visualised in the brief. It looked like a brand worth taking seriously. We ran the ads for 3 months straight without creative fatigue..."></textarea>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">Where is the content living now?</p>
+    <div class="multi-choices" style="margin-bottom:1.5rem;">
+      <button class="multi-chip" onclick="toggleChip(this)">Paid social ads</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Organic social</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Website</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Pitch decks</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Email campaigns</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Still being used daily</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How has the brand changed since the campaign?</p>
+    <textarea id="camp-transform" placeholder="Name a moment, a metric, or a shift — even if it's not a number. Something changed. What was it?"></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How would you rate the campaign's impact on the business?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Hard to tell</span>
+        <input type="range" min="1" max="10" value="7" id="camp-impact" oninput="document.getElementById('camp-impact-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Transformative</span>
+        <span class="slider-val" id="camp-impact-val">7</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-camp-shoot')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-rating')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- RETAINER BRANCH -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-ret-before">
+    <p class="section-label">Section B — Before the retainer</p>
+    <h2 class="q-title">What did content look like <em>before</em> we took it off your plate?</h2>
+    <p class="q-sub">Frequency, quality, the stress of it — describe what the content situation actually was. Don't hold back.</p>
+    <textarea id="ret-before" placeholder="e.g. I was posting when I remembered to. Sometimes good content, mostly just noise. No real direction and way too much time thinking about it between client calls..."></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How consistent were you posting before we started?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Basically never</span>
+        <input type="range" min="1" max="10" value="4" id="ret-consistency" oninput="document.getElementById('ret-consistency-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Every day</span>
+        <span class="slider-val" id="ret-consistency-val">4</span>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">What was the biggest content problem?</p>
+    <div class="multi-choices">
+      <button class="multi-chip" onclick="toggleChip(this)">No time</button>
+      <button class="multi-chip" onclick="toggleChip(this)">No strategy</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Inconsistent quality</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Content not converting</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Didn't know what to say</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Looked like everyone else</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-service')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-ret-system')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-ret-system">
+    <p class="section-label">Section C — The system</p>
+    <h2 class="q-title">What's it like having someone <em>run it for you?</em></h2>
+    <p class="q-sub">The filming day, the scripts, watching the edits come in — what has the actual experience been month to month?</p>
+    <textarea id="ret-system" placeholder="e.g. The filming day is the only hour I spend on content each month. The scripts sound like me — not like a generic founder talking to a camera. That was the thing I was most worried about and it's the thing that surprised me most..."></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How well do the scripts capture your voice?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Doesn't sound like me</span>
+        <input type="range" min="1" max="10" value="8" id="ret-voice" oninput="document.getElementById('ret-voice-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Exactly me</span>
+        <span class="slider-val" id="ret-voice-val">8</span>
+      </div>
+    </div>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How many hours per week has the retainer freed up?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">0 hrs</span>
+        <input type="range" min="0" max="20" value="5" id="ret-time" oninput="document.getElementById('ret-time-val').textContent=this.value+'h'">
+        <span style="font-size:12px;color:var(--text-3);">20+ hrs</span>
+        <span class="slider-val" id="ret-time-val">5h</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-ret-before')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-ret-compound')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-ret-compound">
+    <p class="section-label">Section D — The compound effect</p>
+    <h2 class="q-title">What's <em>building</em> now that wasn't before?</h2>
+    <p class="q-sub">Month over month — what are you noticing? Visibility, inbound, confidence, audience growth? Tell us what's compounding.</p>
+    <textarea id="ret-compound" placeholder="e.g. By month three people started reaching out saying they'd been following me for a while. That had never happened before. The content was working while I was working on the business..."></textarea>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">What has the retainer changed most?</p>
+    <div class="multi-choices" style="margin-bottom:1.5rem;">
+      <button class="multi-chip" onclick="toggleChip(this)">My visibility online</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Inbound enquiries</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Brand perception</button>
+      <button class="multi-chip" onclick="toggleChip(this)">My time</button>
+      <button class="multi-chip" onclick="toggleChip(this)">My confidence in the brand</button>
+      <button class="multi-chip" onclick="toggleChip(this)">How I'm seen in my space</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">Has anything changed beyond the content itself?</p>
+    <textarea id="ret-beyond" placeholder="Partnerships, confidence, sales conversations, the way people talk about you — anything counts."></textarea>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-ret-system')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-rating')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- EVENTS BRANCH -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-ev-before">
+    <p class="section-label">Section B — Before Love Yourss</p>
+    <h2 class="q-title">What was the event content situation <em>before</em> we showed up?</h2>
+    <p class="q-sub">How was it being captured? How fast was it being delivered? What wasn't working?</p>
+    <textarea id="ev-before" placeholder="e.g. We'd been using whoever was available — usually a friend with a camera. Content came in 5 days later when the moment had passed. Nobody was posting from the night itself..."></textarea>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">What type of event was it?</p>
+    <div class="multi-choices" style="margin-bottom:1.5rem;">
+      <button class="multi-chip" onclick="singleChip(this,'ev-type')">Festival</button>
+      <button class="multi-chip" onclick="singleChip(this,'ev-type')">Music event</button>
+      <button class="multi-chip" onclick="singleChip(this,'ev-type')">Corporate event</button>
+      <button class="multi-chip" onclick="singleChip(this,'ev-type')">Brand activation</button>
+      <button class="multi-chip" onclick="singleChip(this,'ev-type')">Product launch</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">What did you need most from Love Yourss?</p>
+    <div class="multi-choices">
+      <button class="multi-chip" onclick="toggleChip(this)">Real-time content delivery</button>
+      <button class="multi-chip" onclick="toggleChip(this)">High quality photography</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Video highlights</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Archival coverage</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Press-ready assets</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Someone who gets the vibe</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-service')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-ev-day')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-ev-day">
+    <p class="section-label">Section C — On the day</p>
+    <h2 class="q-title">What was the <em>Love Yourss team</em> like when it counted?</h2>
+    <p class="q-sub">Live events are unpredictable. How did we handle it — the energy, the adaptability, fitting into your operation without getting in the way?</p>
+    <textarea id="ev-day" placeholder="e.g. They moved like they'd been doing events for years. Never in the way, always exactly where they needed to be. Half the time I forgot they were there — and then I saw the footage..."></textarea>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How seamlessly did we fit into your event operation?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Disruptive</span>
+        <input type="range" min="1" max="10" value="8" id="ev-seamless" oninput="document.getElementById('ev-seamless-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Invisible</span>
+        <span class="slider-val" id="ev-seamless-val">8</span>
+      </div>
+    </div>
+
+    <div class="slider-wrap">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">How was the turnaround and delivery speed?</p>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--text-3);">Way too slow</span>
+        <input type="range" min="1" max="10" value="8" id="ev-speed" oninput="document.getElementById('ev-speed-val').textContent=this.value">
+        <span style="font-size:12px;color:var(--text-3);">Real-time</span>
+        <span class="slider-val" id="ev-speed-val">8</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-ev-before')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-ev-after')">Next →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-ev-after">
+    <p class="section-label">Section D — After the event</p>
+    <h2 class="q-title">What did the <em>coverage actually do</em> for you?</h2>
+    <p class="q-sub">Social, PR, archiving, future bookings — where did the content go and what did it generate?</p>
+    <textarea id="ev-coverage" placeholder="e.g. We used the photos in real time the same night — the engagement was unlike anything we'd seen from an event before. The highlights reel is still driving ticket sales for the next one..."></textarea>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.75rem;">Where did the content get used?</p>
+    <div class="multi-choices" style="margin-bottom:1.5rem;">
+      <button class="multi-chip" onclick="toggleChip(this)">Social media same night</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Press coverage</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Marketing for next event</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Brand archive</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Sponsor deliverables</button>
+      <button class="multi-chip" onclick="toggleChip(this)">Still being used now</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">What did the coverage do for the brand beyond the event itself?</p>
+    <textarea id="ev-beyond" placeholder="Future bookings, community response, how the event is now perceived — tell us what followed."></textarea>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-ev-day')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-rating')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SHARED: RATING -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-rating">
+    <p class="section-label">Almost there</p>
+    <h2 class="q-title">How would you rate the <em>experience?</em></h2>
+    <p class="q-sub">From the very first conversation to the final delivery — how did working with Love Yourss actually feel?</p>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.875rem;">Overall experience</p>
+    <div class="star-row" id="star-row">
+      <button class="star-btn" onclick="rateStar(1)" aria-label="1 star">★</button>
+      <button class="star-btn" onclick="rateStar(2)" aria-label="2 stars">★</button>
+      <button class="star-btn" onclick="rateStar(3)" aria-label="3 stars">★</button>
+      <button class="star-btn" onclick="rateStar(4)" aria-label="4 stars">★</button>
+      <button class="star-btn" onclick="rateStar(5)" aria-label="5 stars">★</button>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:0.875rem;">How likely are you to recommend Love Yourss to someone you know?</p>
+    <div class="nps-row" id="nps-row"></div>
+    <div class="nps-labels"><span>Not a chance</span><span>Already have</span></div>
+
+    <hr class="rule">
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;">Anything we could have done better? Be direct — this is how we get sharper.</p>
+    <textarea id="r-improve" placeholder="One honest thing. That's all we're asking for."></textarea>
+
+    <div class="nav-row">
+      <button class="btn-back" id="rating-back" onclick="goRatingBack()">← Back</button>
+      <button class="btn-next" onclick="goTo('s-words')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SHARED: YOUR WORDS -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-words">
+    <p class="section-label">Last one — and the most important</p>
+    <h2 class="q-title">In your own words — what would you tell someone considering Love Yourss?</h2>
+    <p class="q-sub">One or two sentences. Make it honest. This is the quote we'll carry with us.</p>
+    <textarea id="w-quote" placeholder="e.g. They didn't just make content — they understood our brand in a way no one else had. If you're serious about your brand, this is the team." style="min-height:120px;"></textarea>
+
+    <hr class="rule">
+
+    <div class="consent-block">
+      <label class="consent-item">
+        <input type="checkbox" id="c-public">
+        <span>I'm happy for Love Yourss to use my name and words on their website, social media, and marketing materials.</span>
+      </label>
+      <label class="consent-item">
+        <input type="checkbox" id="c-followup">
+        <span>Love Yourss can follow up with me if they have questions about this feedback.</span>
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-rating')">← Back</button>
+      <button class="btn-submit" id="btn-submit" onclick="submitForm()">Send it →</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-3);margin-top:1.5rem;">Your feedback goes directly to the Love Yourss team. We read every single one.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- THANK YOU -->
+  <!-- ══════════════════════════════════════ -->
+
+  <div class="screen" id="s-thanks">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding-top:2rem;">
+      <div class="thanks-glyph">◈</div>
+      <h2 class="thanks-title">That means everything.<br>Genuinely.</h2>
+      <div class="gold-line"></div>
+      <p class="thanks-body">Your words shape how Love Yourss shows up for the next brand we partner with. We read every response — and we'll carry what you said with us.<br><br>Thank you for being part of this.</p>
+      <p style="margin-top:2.5rem;font-size:12px;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;">Love Yourss · loveyourss.com</p>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const STEPS = ['s-cover','s-who','s-service'];
+let currentScreen = 's-cover';
+let selectedService = null;
+let starVal = 0;
+let npsVal = null;
+
+const TOTAL = 8;
+let stepNum = 0;
+
+const serviceLastStep = {
+  strategy: 's-strat-outcome',
+  campaigns: 's-camp-outcome',
+  retainer: 's-ret-compound',
+  events: 's-ev-after'
+};
+
+function goTo(id) {
+  document.getElementById(currentScreen).classList.remove('active');
+  document.getElementById(id).style.animation = 'none';
+  document.getElementById(id).offsetHeight;
+  document.getElementById(id).style.animation = '';
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateProgress();
+}
+
+function updateProgress() {
+  const order = ['s-cover','s-who','s-service',
+    's-strat-before','s-strat-gap','s-strat-work','s-strat-outcome',
+    's-camp-before','s-camp-shoot','s-camp-outcome',
+    's-ret-before','s-ret-system','s-ret-compound',
+    's-ev-before','s-ev-day','s-ev-after',
+    's-rating','s-words','s-thanks'];
+  const idx = order.indexOf(currentScreen);
+  const pct = idx <= 0 ? 0 : Math.round((idx / (order.length - 1)) * 100);
+  document.getElementById('prog').style.width = pct + '%';
+  if (currentScreen === 's-cover' || currentScreen === 's-thanks') {
+    document.getElementById('prog-label').textContent = '';
+  } else {
+    document.getElementById('prog-label').textContent = pct + '%';
+  }
+}
+
+function selectService(svc, el) {
+  document.querySelectorAll('#s-service .choice-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedService = svc;
+}
+
+function goToServiceBranch() {
+  if (!selectedService) return;
+  const map = { strategy:'s-strat-before', campaigns:'s-camp-before', retainer:'s-ret-before', events:'s-ev-before' };
+  goTo(map[selectedService]);
+}
+
+function goRatingBack() {
+  if (!selectedService) { goTo('s-service'); return; }
+  goTo(serviceLastStep[selectedService]);
+}
+
+function toggleChip(el) {
+  el.classList.toggle('selected');
+}
+
+function singleChip(el, group) {
+  el.closest('.multi-choices').querySelectorAll('.multi-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+let hoverStar = 0;
+function rateStar(val) {
+  starVal = val;
+  document.querySelectorAll('.star-btn').forEach((b, i) => {
+    b.classList.toggle('lit', i < val);
+  });
+}
+document.querySelectorAll('.star-btn').forEach((btn, i) => {
+  btn.addEventListener('mouseenter', () => {
+    document.querySelectorAll('.star-btn').forEach((b, j) => b.classList.toggle('lit', j <= i));
+  });
+  btn.addEventListener('mouseleave', () => {
+    document.querySelectorAll('.star-btn').forEach((b, j) => b.classList.toggle('lit', j < starVal));
+  });
+});
+
+function buildNPS() {
+  const row = document.getElementById('nps-row');
+  for (let i = 0; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'nps-btn';
+    btn.textContent = i;
+    btn.setAttribute('aria-label', `${i} out of 10`);
+    btn.addEventListener('click', () => {
+      npsVal = i;
+      document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    row.appendChild(btn);
+  }
+}
+buildNPS();
+
+function submitForm() {
+  const btn = document.getElementById('btn-submit');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  const payload = {
+    name: document.getElementById('f-name').value,
+    company: document.getElementById('f-company').value,
+    email: document.getElementById('f-email').value,
+    service: selectedService,
+    stars: starVal,
+    nps: npsVal,
+    improve: document.getElementById('r-improve').value,
+    testimonial: document.getElementById('w-quote').value,
+    consentPublic: document.getElementById('c-public').checked,
+    consentFollowUp: document.getElementById('c-followup').checked,
+    strategy: selectedService === 'strategy' ? {
+      before: document.getElementById('strat-before')?.value,
+      clarityBefore: document.getElementById('strat-clarity-before')?.value,
+      gap: document.getElementById('strat-gap')?.value,
+      why: document.getElementById('strat-why')?.value,
+      work: document.getElementById('strat-work')?.value,
+      understand: document.getElementById('strat-understand')?.value,
+      outcome: document.getElementById('strat-outcome')?.value,
+      transform: document.getElementById('strat-transform')?.value,
+    } : null,
+    campaigns: selectedService === 'campaigns' ? {
+      before: document.getElementById('camp-before')?.value,
+      shoot: document.getElementById('camp-shoot')?.value,
+      energy: document.getElementById('camp-energy')?.value,
+      creative: document.getElementById('camp-creative')?.value,
+      transform: document.getElementById('camp-transform')?.value,
+      impact: document.getElementById('camp-impact')?.value,
+    } : null,
+    retainer: selectedService === 'retainer' ? {
+      before: document.getElementById('ret-before')?.value,
+      consistency: document.getElementById('ret-consistency')?.value,
+      system: document.getElementById('ret-system')?.value,
+      voice: document.getElementById('ret-voice')?.value,
+      time: document.getElementById('ret-time')?.value,
+      compound: document.getElementById('ret-compound')?.value,
+      beyond: document.getElementById('ret-beyond')?.value,
+    } : null,
+    events: selectedService === 'events' ? {
+      before: document.getElementById('ev-before')?.value,
+      day: document.getElementById('ev-day')?.value,
+      seamless: document.getElementById('ev-seamless')?.value,
+      speed: document.getElementById('ev-speed')?.value,
+      coverage: document.getElementById('ev-coverage')?.value,
+      beyond: document.getElementById('ev-beyond')?.value,
+    } : null,
+  };
+
+  fetch('/api/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => { if (!r.ok) throw new Error(); goTo('s-thanks'); })
+  .catch(() => {
+    btn.textContent = 'Send it →';
+    btn.disabled = false;
+    goTo('s-thanks');
+  });
+}
+
+updateProgress();
+</script>
+</body>
+</html>
